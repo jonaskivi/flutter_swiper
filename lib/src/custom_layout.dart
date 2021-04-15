@@ -8,6 +8,7 @@ abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
   AnimationController? _animationController;
   late int _startIndex;
   int? _animationCount;
+  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -16,6 +17,9 @@ abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
         '==============\n\nwidget.itemWith must not be null when use stack layout.\n========\n',
       );
     }
+
+    // Initial index
+    _currentIndex = widget.index ?? 0;
 
     _createAnimationController();
     widget.controller!.addListener(_onController);
@@ -245,8 +249,6 @@ abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
 
     _animationController!.value = value;
   }
-
-  int _currentIndex = 0;
 }
 
 double? _getValue(List<double?> values, double animationValue, int index) {
