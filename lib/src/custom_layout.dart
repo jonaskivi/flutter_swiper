@@ -1,5 +1,15 @@
 part of 'swiper.dart';
 
+class WidgetData {
+  WidgetData({
+    required this.index,
+    required this.widget,
+  });
+
+  int index;
+  Widget widget;
+}
+
 abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
     with SingleTickerProviderStateMixin {
   double? _swiperWidth;
@@ -84,14 +94,17 @@ abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
 
   Widget _buildItem(int i, int realIndex, double animationValue);
 
-  Widget _buildContainer(List<Widget> list) {
+  Widget _buildContainer(List<WidgetData> list) {
     return Stack(
-      children: list,
+      children: [
+        for (var data in list)
+          data.widget
+      ]
     );
   }
 
   Widget _buildAnimation(BuildContext context, Widget? w) {
-    var list = <Widget>[];
+    var list = <WidgetData>[];
 
     final animationValue = _animation.value;
 
@@ -106,7 +119,7 @@ abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
         realIndex += widget.itemCount!;
       }
 
-      list.add(_buildItem(i, realIndex, animationValue));
+      list.add(WidgetData(index: i, widget: _buildItem(i, realIndex, animationValue)));
     }
 
     return GestureDetector(
@@ -352,8 +365,9 @@ class CustomLayoutOption {
   final List<TransformBuilder> builders = [];
   final int startIndex;
   final int? stateCount;
+  final bool sortByScale;
 
-  CustomLayoutOption({this.stateCount, required this.startIndex});
+  CustomLayoutOption({this.stateCount, required this.startIndex, this.sortByScale: false});
 
   CustomLayoutOption addOpacity(List<double> values) {
     builders.add(OpacityTransformBuilder(values: values));
@@ -426,6 +440,50 @@ class _CustomLayoutState extends _CustomLayoutStateBase<_CustomLayoutSwiper> {
     _startIndex = widget.option.startIndex;
     _animationCount = widget.option.stateCount;
     super.didUpdateWidget(oldWidget);
+  }
+
+  List<WidgetData> _sortByScale(List<WidgetData> list) {
+    // Go through builders and look for scale.
+    ScaleTransformBuilder? scaleBuilder = null;
+    List<double?>? scales = null;
+    for (var builder in widget.option.builders) {
+      if (builder is ScaleTransformBuilder) {
+        scaleBuilder = builder;
+        scales = builder.values;
+      }
+    }
+
+    if (scales != null && scales.length >= _animationCount!) {
+      // Sort WidgetDatas by scale.
+      list.sort((a, b) {
+        if (scales != null) {
+          double? scaleA = _getValue(scales, _animation.value, a.index);
+          double? scaleB = _getValue(scales, _animation.value, b.index);
+          if (scaleA != null && scaleB != null) {
+            if (scaleA < scaleB)
+              return -1;
+            else if (scaleA > scaleB)
+              return 1;
+          }
+        }
+        return 0;
+      });
+    }
+    return list;
+  }
+
+  @override
+  Widget _buildContainer(List<WidgetData> list) {
+    if (widget.option.sortByScale) {
+      list = _sortByScale(list);
+    }
+
+    return Stack(
+      children: [
+        for (var data in list)
+          data.widget
+      ]
+    );
   }
 
   @override
