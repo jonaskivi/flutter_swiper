@@ -19,6 +19,7 @@ abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
   late int _startIndex;
   int? _animationCount;
   int _currentIndex = 0;
+  bool _reverseSwipeDirection = false;
 
   @override
   void initState() {
@@ -215,9 +216,13 @@ abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
   void _onPanEnd(DragEndDetails details) {
     if (_lockScroll) return;
 
-    final velocity = widget.scrollDirection == Axis.horizontal
+    var velocity = widget.scrollDirection == Axis.horizontal
         ? details.velocity.pixelsPerSecond.dx
         : details.velocity.pixelsPerSecond.dy;
+
+    if (_reverseSwipeDirection) {
+      velocity = -velocity;
+    }
 
     if (_animationController!.value >= 0.75 || velocity > 500.0) {
       if (_currentIndex <= 0 && !widget.loop!) {
@@ -244,13 +249,20 @@ abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
 
   void _onPanUpdate(DragUpdateDetails details) {
     if (_lockScroll) return;
-    var value = _currentValue +
-        ((widget.scrollDirection == Axis.horizontal
+    
+    var delta = ((widget.scrollDirection == Axis.horizontal
                     ? details.globalPosition.dx
                     : details.globalPosition.dy) -
                 _currentPos) /
             _swiperWidth! /
             2;
+
+    if (_reverseSwipeDirection) {
+      delta = -delta;
+    }
+
+    var value = _currentValue + delta;
+
     // no loop ?
     if (!widget.loop!) {
       if (_currentIndex >= widget.itemCount! - 1) {
@@ -366,8 +378,14 @@ class CustomLayoutOption {
   final int startIndex;
   final int? stateCount;
   final bool sortByScale;
+  final bool reverseSwipeDirection;
 
-  CustomLayoutOption({this.stateCount, required this.startIndex, this.sortByScale: false});
+  CustomLayoutOption({
+    this.stateCount,
+    required this.startIndex,
+    this.sortByScale: false,
+    this.reverseSwipeDirection: false,
+  });
 
   CustomLayoutOption addOpacity(List<double> values) {
     builders.add(OpacityTransformBuilder(values: values));
@@ -433,12 +451,14 @@ class _CustomLayoutState extends _CustomLayoutStateBase<_CustomLayoutSwiper> {
     super.didChangeDependencies();
     _startIndex = widget.option.startIndex;
     _animationCount = widget.option.stateCount;
+    _reverseSwipeDirection = widget.option.reverseSwipeDirection;
   }
 
   @override
   void didUpdateWidget(_CustomLayoutSwiper oldWidget) {
     _startIndex = widget.option.startIndex;
     _animationCount = widget.option.stateCount;
+    _reverseSwipeDirection = widget.option.reverseSwipeDirection;
     super.didUpdateWidget(oldWidget);
   }
 
