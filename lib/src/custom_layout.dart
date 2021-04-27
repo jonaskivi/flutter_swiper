@@ -254,8 +254,7 @@ abstract class _CustomLayoutStateBase<T extends _SubSwiper> extends State<T>
                     ? details.globalPosition.dx
                     : details.globalPosition.dy) -
                 _currentPos) /
-            _swiperWidth! /
-            2;
+            _swiperWidth! * widget.sensitivityMultiplier;
 
     if (_reverseSwipeDirection) {
       delta = -delta;
@@ -420,6 +419,7 @@ class _CustomLayoutSwiper extends _SubSwiper {
     Key? key,
     IndexedWidgetBuilder? itemBuilder,
     Curve? curve,
+    double sensitivityMultiplier = 0.5,
     int? duration,
     int? index,
     int? itemCount,
@@ -433,6 +433,7 @@ class _CustomLayoutSwiper extends _SubSwiper {
             key: key,
             itemBuilder: itemBuilder,
             curve: curve,
+            sensitivityMultiplier: sensitivityMultiplier,
             duration: duration,
             index: index,
             itemCount: itemCount,

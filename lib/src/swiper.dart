@@ -68,6 +68,9 @@ class Swiper extends StatefulWidget {
   ///horizontal/vertical
   final Axis scrollDirection;
 
+  /// Multiplier for the pan/dragging delta. Affects touch sensitivity.
+  final double sensitivityMultiplier;
+
   ///transition curve
   final Curve curve;
 
@@ -131,6 +134,7 @@ class Swiper extends StatefulWidget {
     this.control,
     this.loop = true,
     this.curve = Curves.ease,
+    this.sensitivityMultiplier = 0.5,
     this.scrollDirection = Axis.horizontal,
     this.pagination,
     this.plugins,
@@ -176,6 +180,7 @@ class Swiper extends StatefulWidget {
     SwiperOnTap? onTap,
     bool loop = true,
     Curve curve = Curves.ease,
+    double sensitivityMultiplier = 0.5,
     Axis scrollDirection = Axis.horizontal,
     SwiperPlugin? pagination,
     SwiperPlugin? control,
@@ -212,6 +217,7 @@ class Swiper extends StatefulWidget {
         index: index,
         onTap: onTap,
         curve: curve,
+        sensitivityMultiplier: sensitivityMultiplier,
         scrollDirection: scrollDirection,
         pagination: pagination,
         control: control,
@@ -241,6 +247,7 @@ class Swiper extends StatefulWidget {
     SwiperOnTap? onTap,
     bool loop = true,
     Curve curve = Curves.ease,
+    double sensitivityMultiplier = 0.5,
     Axis scrollDirection = Axis.horizontal,
     SwiperPlugin? pagination,
     SwiperPlugin? control,
@@ -275,6 +282,7 @@ class Swiper extends StatefulWidget {
         onTap: onTap,
         curve: curve,
         key: key,
+        sensitivityMultiplier: sensitivityMultiplier,
         scrollDirection: scrollDirection,
         pagination: pagination,
         control: control,
@@ -478,6 +486,7 @@ class _SwiperState extends _SwiperTimerMixin {
         itemBuilder: itemBuilder,
         index: _activeIndex,
         curve: widget.curve,
+        sensitivityMultiplier: widget.sensitivityMultiplier,
         duration: widget.duration,
         onIndexChanged: _onIndexChanged,
         controller: _controller,
@@ -533,6 +542,7 @@ class _SwiperState extends _SwiperTimerMixin {
         itemBuilder: itemBuilder,
         index: _activeIndex,
         curve: widget.curve,
+        sensitivityMultiplier: widget.sensitivityMultiplier,
         duration: widget.duration,
         onIndexChanged: _onIndexChanged,
         controller: _controller,
@@ -548,6 +558,7 @@ class _SwiperState extends _SwiperTimerMixin {
         itemBuilder: itemBuilder,
         index: _activeIndex,
         curve: widget.curve,
+        sensitivityMultiplier: widget.sensitivityMultiplier,
         duration: widget.duration,
         onIndexChanged: _onIndexChanged,
         controller: _controller,
@@ -655,6 +666,7 @@ abstract class _SubSwiper extends StatefulWidget {
   final SwiperController? controller;
   final int? duration;
   final Curve? curve;
+  final double sensitivityMultiplier;
   final double? itemWidth;
   final double? itemHeight;
   final bool? loop;
@@ -667,6 +679,7 @@ abstract class _SubSwiper extends StatefulWidget {
       this.itemWidth,
       this.duration,
       this.curve,
+      this.sensitivityMultiplier = 0.5,
       this.itemBuilder,
       this.controller,
       this.index,
@@ -692,6 +705,7 @@ class _TinderSwiper extends _SubSwiper {
   _TinderSwiper({
     Key? key,
     Curve? curve,
+    double sensitivityMultiplier = 0.5,
     int? duration,
     SwiperController? controller,
     ValueChanged<int>? onIndexChanged,
@@ -710,6 +724,7 @@ class _TinderSwiper extends _SubSwiper {
             itemHeight: itemHeight,
             itemBuilder: itemBuilder,
             curve: curve,
+            sensitivityMultiplier: sensitivityMultiplier,
             duration: duration,
             controller: controller,
             index: index,
@@ -727,6 +742,7 @@ class _StackSwiper extends _SubSwiper {
   _StackSwiper({
     Key? key,
     Curve? curve,
+    double sensitivityMultiplier = 0.5,
     int? duration,
     SwiperController? controller,
     ValueChanged<int>? onIndexChanged,
@@ -744,6 +760,7 @@ class _StackSwiper extends _SubSwiper {
             itemHeight: itemHeight,
             itemBuilder: itemBuilder,
             curve: curve,
+            sensitivityMultiplier: sensitivityMultiplier,
             duration: duration,
             controller: controller,
             index: index,
